@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">New Product</h4>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        <div class="mb-3">
+          <label class="form-label">Name</label>
+          <input type="text" name="name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">SKU</label>
+          <input type="text" name="sku" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Price</label>
+          <input type="number" step="0.01" name="price" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Category</label>
+          <select id="categorySelect" name="category_id" class="form-select" required>
+            <option value="">-- Select Category --</option>
+            {% for c in categories %}
+              <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Dynamic Attributes will load here -->
+        <div id="attributesContainer" class="row"></div>
+
+        <div class="d-flex justify-content-end mt-3">
+          <button type="submit" class="btn btn-success">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById("categorySelect").addEventListener("change", function() {
+    const catId = this.value;
+    const container = document.getElementById("attributesContainer");
+    container.innerHTML = "";
+
+    if (!catId) return;
+
+    fetch(`/api/categories/${catId}/attributes`)
+      .then(res => res.json())
+      .then(attrs => {
+        attrs.forEach(a => {
+          let field = "";
+
+          if (a.data_type === "boolean") {
+            field = `
+              <div class="col-md-6 mb-3">
+                <label class="form-label">${a.name}</label>
+                <div class="form-check">
+                  <input type="checkbox" name="attr_${a.id}" value="true" class="form-check-input">
+                  <label class="form-check-label">Yes</label>
+                </div>
+              </div>
+            `;
+          } else if (a.data_type === "enum") {
+            let options = a.options.split(",").map(opt => `<option value="${opt.trim()}">${opt.trim()}</option>`).join("");
+            field = `
+              <div class="col-md-6 mb-3">
+                <label class="form-label">${a.name}</label>
+                <select name="attr_${a.id}" class="form-select">
+                  ${options}
+                </select>
+              </div>
+            `;
+          } else {
+            field = `
+              <div class="col-md-6 mb-3">
+                <label class="form-label">${a.name}</label>
+                <input type="text" name="attr_${a.id}" class="form-control">
+              </div>
+            `;
+          }
+
+          container.innerHTML += field;
+        });
+      })
+      .catch(err => console.error("Error loading attributes:", err));
+});
+</script>
+{% endblock %}
