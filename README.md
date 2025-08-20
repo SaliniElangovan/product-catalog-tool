@@ -21,39 +21,6 @@ Internal tool to manage product categories, attributes, and products with **cate
 
 ---
 
-## Database Schema  
-
-### **Categories**
-- `id` (int, PK)  
-- `name` (text, unique, required)  
-- `description` (text)  
-
-### **Attributes**
-- `id` (int, PK)  
-- `categoryId` (FK → Categories.id)  
-- `name` (text, required)  
-- `dataType` (enum: text, number, decimal, boolean, date, enum)  
-- `options` (text, nullable → for enum values)  
-- `isRequired` (boolean, default false)  
-
-### **Products**
-- `id` (bigint, PK)  
-- `categoryId` (FK → Categories.id)  
-- `name` (text, required)  
-- `sku` (text, unique, required)  
-- `price` (decimal, required)  
-
-### **ProductAttributeValues**
-- `id` (bigint, PK)  
-- `productId` (FK → Products.id)  
-- `attributeId` (FK → Attributes.id)  
-- `valueText` (text, nullable)  
-- `valueNumber` (decimal, nullable)  
-- `valueBoolean` (boolean, nullable)  
-- `valueDate` (date, nullable)  
-
----
-
 ## Setup
 
 ```bash
